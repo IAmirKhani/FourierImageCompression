@@ -35,3 +35,44 @@ def plot_images(image, image_new):
     plt.subplot(1, 2, 1), plt.imshow(image, cmap='gray'), plt.title('Original Image')
     plt.subplot(1, 2, 2), plt.imshow(image_new, cmap='gray'), plt.title('Compressed Image')
     plt.show()
+
+if __name__ == "__main__":
+    image_path = 'input.jpg'
+    output_path = 'output_image.jpg'
+    keep_fraction = 0.1
+
+    image = load_image(image_path)
+    image_fft = compute_fft(image)
+    
+    # Visualize the frequency spectrum of the original image
+    plt.subplot(2,2,1), plt.imshow(np.log(1+np.abs(image_fft)), cmap='gray')
+    plt.title('Original Image FFT')
+    
+    image_fft_compressed = compress_image(image_fft, keep_fraction)
+    
+    # Visualize the frequency spectrum of the compressed image
+    plt.subplot(2,2,2), plt.imshow(np.log(1+np.abs(image_fft_compressed)), cmap='gray')
+    plt.title(f'Compressed Image FFT ({keep_fraction*100}% frequency components)')
+    
+    image_new = fftpack.ifftn(image_fft_compressed).real
+
+    mse, psnr = compute_metrics(image, image_new)
+    print(f"MSE: {mse}")
+    print(f"PSNR: {psnr}")
+
+    save_image(image_new, output_path)
+
+    # Analyze image file sizes
+    orig_size = os.stat('input.jpg').st_size
+    compressed_size = os.stat("output_image.jpg").st_size
+    print(f"Original image size: {orig_size} bytes")
+    print(f"Compressed image size: {compressed_size} bytes")
+    print(f"Size difference: {orig_size - compressed_size} bytes")
+    
+    # Visualize the original image and visualize the compressed image.
+    plt.subplot(2,2,3), plt.imshow(image, cmap='gray')
+    plt.title('Original Image')
+    plt.subplot(2,2,4), plt.imshow(image_new, cmap='gray')
+    plt.title('Compressed Image')
+    plt.tight_layout()
+    plt.show()
