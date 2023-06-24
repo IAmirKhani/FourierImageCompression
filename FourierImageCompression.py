@@ -2,6 +2,7 @@ import numpy as np
 from scipy import fftpack
 import matplotlib.pyplot as plt
 import cv2
+import os
 
 def load_image(image_path):
     # Load the input image in grayscale format.
